@@ -7,6 +7,7 @@ public class getBearing {
 	
 	public double Bearing() {
 		// get bearing
+		bearing = 0;
 		return bearing;
 	}
 	public void updateBearing(boolean isTrue) {

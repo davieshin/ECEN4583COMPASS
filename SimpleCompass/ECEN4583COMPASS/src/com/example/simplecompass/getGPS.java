@@ -8,10 +8,12 @@ public class getGPS {
 	
 	public double getLong() {
 		// get longitude
+		longitude = 0;
 		return longitude;
 	}
 	public double getLat() {
 		// get latitude
+		latitude = 0;
 		return latitude;
 	}
 	public void updateGPS(boolean isTrue) {
