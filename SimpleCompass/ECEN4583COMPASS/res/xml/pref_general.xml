@@ -1,0 +1,10 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="example_checkbox"
+        android:title="Display bearing in milliradians" />
+
+   
+
+</PreferenceScreen>

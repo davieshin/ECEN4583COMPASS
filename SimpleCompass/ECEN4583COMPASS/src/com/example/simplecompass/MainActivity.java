@@ -1,15 +1,21 @@
 package com.example.simplecompass;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
 	
 	public boolean APP_CAN_UPDATE = true;
 	public int APP_UPDATE_RATE_MS = 500;
+	
+	public static boolean COMPASS_DISPLAY_RADIANS;
 
 	////////////////////////////////////////
 	//void onCreate()
@@ -25,6 +31,8 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		
+		PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
 		
 		startUpdateLoop();
 
@@ -126,12 +134,56 @@ public class MainActivity extends Activity {
 		
 		//Declare the TextView element so
 		//we can manipulate it in the code
+		
 		TextView compass_view = (TextView) findViewById(R.id.bearing_value);
 		
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+		COMPASS_DISPLAY_RADIANS = sharedPref.getBoolean("example_checkbox", false);
+		
+		if(COMPASS_DISPLAY_RADIANS)
+		{
+			bearing = degreesToRadians(bearing);
+		}
+		
+		
+		String str = Double.toString(bearing);
+		if(COMPASS_DISPLAY_RADIANS)
+		{
+			str = str + " mrad";
+		}
+		else
+		{
+			str = str + " deg";
+		}
+		
 		//Update screen element.
-		compass_view.setText(Double.toString(bearing));
+		
+		compass_view.setText(str);
 		
 		return;	
+	}
+	
+	double degreesToRadians(double degrees)
+	{
+		//Convert to radians and multiply by 1000
+		double returnval = (degrees/360) * 2 * 3.14 * 1000;
+		return returnval;
+	}
+	
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item)
+	{	    		
+		if(item.getItemId() == R.id.action_settings)
+		{
+			openSettings();
+	    }
+		return true;
+	}
+	
+	public void openSettings()
+	{
+		Intent intent = new Intent(this, SettingsActivity.class);
+		startActivity(intent);		
 	}
 	
 }
