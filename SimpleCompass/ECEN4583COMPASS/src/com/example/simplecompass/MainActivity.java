@@ -1,6 +1,7 @@
 package com.example.simplecompass;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	
@@ -16,6 +18,15 @@ public class MainActivity extends Activity {
 	public int APP_UPDATE_RATE_MS = 500;
 	
 	public static boolean COMPASS_DISPLAY_RADIANS;
+	
+	public boolean APP_ERROR_GPS_ACK = false;
+	public boolean APP_ERROR_COMPASS_ACK = false;
+	
+	private Context context;
+	private getGPS gps;
+	private getBearing compass;
+	
+	
 
 	////////////////////////////////////////
 	//void onCreate()
@@ -33,6 +44,10 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 		
 		PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
+		
+		Context context = getApplicationContext();
+		gps = new getGPS(context);
+		compass = new getBearing(context);
 		
 		startUpdateLoop();
 
@@ -65,18 +80,25 @@ public class MainActivity extends Activity {
 	////////////////////////////////////
 	void startUpdateLoop()
 	{
-		Handler handler = new Handler();
-		handler.postDelayed(new Runnable()
+		final Handler handler = new Handler();
+		//handler.postDelayed(new Runnable()
+		handler.post(new Runnable()
 		{
+			@Override
 			public void run()
 			{
+				
 				//Update GPS
 				display_GPSUpdate();
 				
 				//Update compass
 				display_CompassUpdate();
+				
+				handler.postDelayed(this,APP_UPDATE_RATE_MS);
+				
 			}
-		}, APP_UPDATE_RATE_MS);
+		//}, APP_UPDATE_RATE_MS);
+		});
 		
 		return;
 	}
@@ -92,13 +114,14 @@ public class MainActivity extends Activity {
 	///////////////////////////////
 	void display_GPSUpdate()
 	{
-		getGPS gps = new getGPS();
 		
 		//Check for errors... eventually.
 		
 		//Get GPS values
-		double latitude = gps.getLat();
-		double longitude = gps.getLong();
+		if(gps.isValid())
+		{
+		double latitude = gps.getLatitude();
+		double longitude = gps.getLongitude();
 		
 		//Declare TextView elements so we
 		//can manipulate them in code
@@ -108,6 +131,27 @@ public class MainActivity extends Activity {
 		//Update screen elements.
 		lat_view.setText(Double.toString(latitude));
 		long_view.setText(Double.toString(longitude));
+		}
+		else
+		{
+			TextView lat_view = (TextView) findViewById(R.id.gps_lat_value);
+			TextView long_view = (TextView) findViewById(R.id.gps_long_value);
+			
+			lat_view.setText("INVALID");
+			long_view.setText("INVALID");
+			
+			if(!APP_ERROR_GPS_ACK)
+			{
+				//Display a toast pop-up
+				CharSequence text = "A problem has occured with the GPS hardware. Ensure that you have a signal and that the location service is enabled.";
+				int duration = Toast.LENGTH_SHORT;
+
+				Toast toast = Toast.makeText(context, text, duration);
+				toast.show();
+				
+				APP_ERROR_GPS_ACK = true;
+			}
+		}
 		
 		return;
 		
@@ -125,35 +169,55 @@ public class MainActivity extends Activity {
 	///////////////////////////////
 	void display_CompassUpdate()
 	{
-		getBearing compass = new getBearing();
+		
+		String str;
+		TextView compass_view = (TextView) findViewById(R.id.bearing_value);
 		
 		//Check for errors... eventually.
 		
-		//Get compass value
-		double bearing = compass.Bearing();
-		
-		//Declare the TextView element so
-		//we can manipulate it in the code
-		
-		TextView compass_view = (TextView) findViewById(R.id.bearing_value);
-		
-		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-		COMPASS_DISPLAY_RADIANS = sharedPref.getBoolean("example_checkbox", false);
-		
-		if(COMPASS_DISPLAY_RADIANS)
+		if(compass.isValid())
 		{
-			bearing = degreesToRadians(bearing);
-		}
+			//Get compass value
+			double bearing = compass.Bearing();
+		
+			//Declare the TextView element so
+			//we can manipulate it in the code
+		
+			
+		
+			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
+			COMPASS_DISPLAY_RADIANS = sharedPref.getBoolean("example_checkbox", false);
+		
+			if(COMPASS_DISPLAY_RADIANS)
+			{
+				bearing = degreesToRadians(bearing);
+			}
 		
 		
-		String str = Double.toString(bearing);
-		if(COMPASS_DISPLAY_RADIANS)
-		{
-			str = str + " mrad";
+			str = Double.toString(bearing);
+			if(COMPASS_DISPLAY_RADIANS)
+			{
+				str = str + " mrad";
+			}
+			else
+			{
+				str = str + " deg";
+			}
 		}
 		else
 		{
-			str = str + " deg";
+			str = "INVALID";
+			if(!APP_ERROR_COMPASS_ACK)
+			{
+				Context context = getApplicationContext();
+				CharSequence text = "There is a problem with the compass hardware. Try moving the device away from any magnetic or metallic objects.";
+				int duration = Toast.LENGTH_SHORT;
+
+				Toast toast = Toast.makeText(context, text, duration);
+				toast.show();
+				
+				APP_ERROR_COMPASS_ACK = true;
+			}
 		}
 		
 		//Update screen element.
