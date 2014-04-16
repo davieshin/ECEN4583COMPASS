@@ -96,19 +96,21 @@ public class getBearing implements SensorEventListener
 	private SensorManager mSensorManager;
 	 Sensor accelerometer;
 	 Sensor magnetometer;
-	 
+
+
 	 private final Context mContext;
 
 	 getBearing(Context context)
 	 {
 		 this.mContext = context;
-		 
+
 		 mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
 		 accelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 		 magnetometer = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-		 
+
 		 mSensorManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_UI);
 		 mSensorManager.registerListener(this, magnetometer, SensorManager.SENSOR_DELAY_UI);
+
 	 }
 
 	 /*
@@ -132,7 +134,7 @@ mSensorManager.unregisterListener(this);
 	 public void onSensorChanged(SensorEvent event)
 	 {
 		 if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
-			 mGravity = event.values;
+			mGravity = event.values;
 		 if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
 			 mGeomagnetic = event.values;
 		 if (mGravity != null && mGeomagnetic != null)
@@ -159,6 +161,3 @@ public boolean isValid()
 
 
 }
-
-
-

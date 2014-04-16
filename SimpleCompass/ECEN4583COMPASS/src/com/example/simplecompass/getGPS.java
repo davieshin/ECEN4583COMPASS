@@ -31,10 +31,10 @@ public class getGPS extends Service implements LocationListener {
     double longitude; // longitude
  
     // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
+    public static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
  
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 60 * 1; // 1000*60*1 = 1 minute
+    public static final long MIN_TIME_BW_UPDATES = 1000 * 10; // 1000*10 = 10 seconds
  
     // Declaring a Location Manager
     protected LocationManager locationManager;
@@ -43,7 +43,8 @@ public class getGPS extends Service implements LocationListener {
         this.mContext = context;
         getLocation();
     }
- 
+   
+    
     public Location getLocation() {
         try {
             locationManager = (LocationManager) mContext
@@ -180,28 +181,27 @@ public class getGPS extends Service implements LocationListener {
  
     @Override
     public void onLocationChanged(Location location) {
+    	
     }
  
     @Override
     public void onProviderDisabled(String provider) {
+    	this.canGetLocation = false;
     }
  
     @Override
     public void onProviderEnabled(String provider) {
+    	this.canGetLocation = true;
     }
  
     @Override
     public void onStatusChanged(String provider, int status, Bundle extras) {
+    	
     }
  
     @Override
     public IBinder onBind(Intent arg0) {
         return null;
-    }
-    
-    public boolean isValid()
-    {
-    	return true;
     }
  
 }
