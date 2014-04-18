@@ -93,7 +93,10 @@ public class MainActivity extends Activity {
 
 				//Update compass
 				display_CompassUpdate();
-
+				
+				//Get settings values
+				display_getSettings();
+				
 				handler.postDelayed(this,APP_COMPASS_UPDATE_RATE_MS);
 
 			}
@@ -184,8 +187,6 @@ public class MainActivity extends Activity {
 			}
 			
 			//Get the setting value(s) so we know what we need to display.
-			SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(this);
-			COMPASS_DISPLAY_RADIANS = sharedPref.getBoolean("example_checkbox", false);
 
 			if(COMPASS_DISPLAY_RADIANS)
 			{
@@ -209,7 +210,6 @@ public class MainActivity extends Activity {
 			str = "INVALID";
 			if(!APP_ERROR_COMPASS_ACK)
 			{
-				Context context = getApplicationContext();
 				CharSequence text = "There is a problem with the compass hardware. Try moving the device away from any magnetic or metallic objects.";
 				Toast.makeText(MainActivity.this,text,Toast.LENGTH_LONG).show();
 
@@ -218,10 +218,29 @@ public class MainActivity extends Activity {
 		}
 
 		//Update screen element.
-
 		compass_view.setText(str);
-
+		
 		return;	
+	}
+	
+	void display_getSettings()
+	{
+		//Get recent preferences
+		//Show radians?
+		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+		COMPASS_DISPLAY_RADIANS = sharedPref.getBoolean("checkbox_use_radians", false);
+		
+		//Compass Update rate
+		APP_COMPASS_UPDATE_RATE_MS = Integer.parseInt(sharedPref.getString("text_compass_pref", "500"));
+
+		//GPS Min distance
+		gps.MIN_DISTANCE_CHANGE_FOR_UPDATES = Integer.parseInt(sharedPref.getString("text_gps_min_distance", "10"));
+		
+		//GPS Min time between updates
+		gps.MIN_TIME_BW_UPDATES = Integer.parseInt(sharedPref.getString("text_gps_update_rate", "30"));
+		
+		return;
+		
 	}
 
 	double degreesToRadians(double degrees)

@@ -31,10 +31,10 @@ public class getGPS extends Service implements LocationListener {
     double longitude; // longitude
  
     // The minimum distance to change Updates in meters
-    public static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
+    public long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
  
     // The minimum time between updates in milliseconds
-    public static final long MIN_TIME_BW_UPDATES = 1000 * 10; // 1000*10 = 10 seconds
+    public long MIN_TIME_BW_UPDATES = 1000 * 10; // 1000*10 = 10 seconds
  
     // Declaring a Location Manager
     protected LocationManager locationManager;

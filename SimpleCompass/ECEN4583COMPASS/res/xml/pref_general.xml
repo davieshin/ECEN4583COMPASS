@@ -2,9 +2,29 @@
 
     <CheckBoxPreference
         android:defaultValue="false"
-        android:key="example_checkbox"
+        android:key="checkbox_use_radians"
         android:title="Display bearing in milliradians" />
-
+    
    
-
+<EditTextPreference
+        android:defaultValue="500"
+        android:key="text_compass_pref"
+        android:inputType="number"
+        android:numeric="integer"
+        android:title="Compass update rate (ms)" />
+    
+    <EditTextPreference
+        android:defaultValue="10"
+        android:key="text_gps_min_dist"
+        android:inputType="number"
+        android:numeric="integer"
+        android:title="Minimum GPS Distance For Update (m)" />
+    
+    <EditTextPreference
+        android:defaultValue="30"
+        android:key="text_gps_update_rate"
+        android:inputType="number"
+        android:numeric="integer"
+        android:title="GPS Update Rate (s)" />
+  
 </PreferenceScreen>
