@@ -7,13 +7,14 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
+    android:background="#FFFFFF"
     					 >
 
     <ImageView
         android:id="@+id/graphic_view_temp"
         android:layout_width="match_parent"
         android:layout_height="288dp"
-        android:src="@drawable/ic_launcher" />
+        android:src="@drawable/compass1a" />
     
     <LinearLayout 
         android:layout_width = "match_parent"
@@ -24,20 +25,20 @@
         
         <TextView
             android:id="@+id/bearing_label"
-            android:layout_weight = "1"
-            android:layout_width = "0dp"
-            android:layout_height = "match_parent"
-            android:text  = "Current Bearing:"
-            android:textAlignment = "center"
-            android:textSize = "17sp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="0.05"
             android:gravity="fill"
-            />
+            android:text="Current Bearing:"
+            android:textAlignment="center"
+            android:textSize="17sp" />
+
         <TextView
             android:id="@+id/bearing_value"
             android:layout_weight = "1"
             android:layout_width = "0dp"
             android:layout_height = "match_parent"
-			android:text = "360"
+			android:text = "invalid"
 			android:textAlignment = "center"
 			android:textSize = "17sp"
 			android:gravity="fill"
@@ -53,41 +54,40 @@
         
         <TextView
             android:id="@+id/gps_lat_label"
-            android:layout_weight = "1"
-            android:layout_width = "0dp"
-            android:layout_height = "match_parent"
-            android:text  = "Latitude:"  
-            android:textAlignment = "center"
-            android:textSize = "14.5sp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             android:gravity="fill"
-            />
+            android:text="Latitude:"
+            android:layout_weight="0.05"
+            android:textAlignment="center"
+            android:textSize="14.5sp" />
+
         <TextView
             android:id="@+id/gps_lat_value"
-            android:layout_weight = "1"
-            android:layout_width = "0dp"
-            android:layout_height = "match_parent"
-			android:text = "21314"
-			android:textAlignment = "center"
-			android:textSize = "14.5sp"
-			android:gravity="fill"
-             /> 
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.91"
+            android:gravity="fill"
+            android:text="invalid"
+            android:textAlignment="center"
+            android:textSize="14.5sp" />
              
          <TextView
-            android:id="@+id/gps_long_label"
-            android:layout_weight = "1"
-            android:layout_width = "0dp"
-            android:layout_height = "match_parent"
-            android:text  = "Longitude:" 
-            android:textAlignment = "center"
-            android:textSize = "14.5sp"
-            android:gravity="fill"
-            />
+             android:id="@+id/gps_long_label"
+             android:layout_width="wrap_content"
+             android:layout_height="match_parent"
+             android:gravity="fill"
+             android:text="Longitude:"
+             android:layout_weight="0.05"
+             android:textAlignment="center"
+             android:textSize="14.5sp" />
+
         <TextView
             android:id="@+id/gps_long_value"
             android:layout_weight = "1"
             android:layout_width = "0dp"
             android:layout_height = "match_parent"
-			android:text = "13131"
+			android:text = "invalid"
 			android:textAlignment = "center"
 			android:textSize = "14.5sp"
 			android:gravity="fill"

@@ -7,7 +7,7 @@
     
    
 <EditTextPreference
-        android:defaultValue="500"
+        android:defaultValue="1"
         android:key="text_compass_pref"
         android:inputType="number"
         android:numeric="integer"

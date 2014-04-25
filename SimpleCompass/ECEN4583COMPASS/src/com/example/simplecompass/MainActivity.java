@@ -1,5 +1,8 @@
 package com.example.simplecompass;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -9,14 +12,16 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.view.animation.Animation;
+import android.view.animation.RotateAnimation;
 
 public class MainActivity extends Activity {
 
 	public boolean APP_CAN_UPDATE = true;
-	public int APP_COMPASS_UPDATE_RATE_MS = 500;
-
+	public int APP_COMPASS_UPDATE_RATE_MS = 1;
 
 	public static boolean COMPASS_DISPLAY_RADIANS;
 
@@ -25,6 +30,10 @@ public class MainActivity extends Activity {
 
 	private getGPS gps;
 	private getBearing compass;
+	
+	private ImageView image;
+	private float currentDegree = 0f;
+	
 
 
 
@@ -38,13 +47,13 @@ public class MainActivity extends Activity {
 	//main activity and starts the update loop.
 	////////////////////////////////////////
 
-	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
 		PreferenceManager.setDefaultValues(this, R.xml.pref_general, false);
-
+		image = (ImageView) findViewById(R.id.graphic_view_temp);
+		
 		Context context = getApplicationContext();
 		gps = new getGPS(context);
 		compass = new getBearing(context);
@@ -93,10 +102,10 @@ public class MainActivity extends Activity {
 
 				//Update compass
 				display_CompassUpdate();
-				
+
 				//Get settings values
 				display_getSettings();
-				
+
 				handler.postDelayed(this,APP_COMPASS_UPDATE_RATE_MS);
 
 			}
@@ -123,8 +132,17 @@ public class MainActivity extends Activity {
 		//Get GPS values
 		if(gps.canGetLocation())
 		{
-		double latitude = gps.getLatitude();
-		double longitude = gps.getLongitude();
+			APP_ERROR_GPS_ACK = false;
+			
+		double latitude = round(gps.getLatitude(), 2);
+		double longitude = round(gps.getLongitude(), 2);
+		
+		int rlatitude = (int) latitude;
+		int rlongitude = (int) longitude;
+		int latminute = minutes(latitude);
+		int longminute = minutes(longitude);
+		int latsecond = seconds(latitude);
+		int longsecond = seconds(longitude);
 
 		//Declare TextView elements so we
 		//can manipulate them in code
@@ -132,8 +150,9 @@ public class MainActivity extends Activity {
 		TextView long_view = (TextView) findViewById(R.id.gps_long_value);
 
 		//Update screen elements.
-		lat_view.setText(Double.toString(latitude));
-		long_view.setText(Double.toString(longitude));
+//		lat_view.setText(Double.toString(latitude));
+		lat_view.setText(Integer.toString(rlatitude) + (char) 0x00B0 + Integer.toString(latminute) + "'" + Integer.toString(latsecond) + "''");
+		long_view.setText(Integer.toString(rlongitude) + (char) 0x00B0 + Integer.toString(longminute) + "'" + Integer.toString(longsecond) + "''");
 		}
 		else
 		{
@@ -154,7 +173,6 @@ public class MainActivity extends Activity {
 		}
 
 		return;
-
 
 	}
 
@@ -177,32 +195,32 @@ public class MainActivity extends Activity {
 
 		if(compass.isValid())
 		{
+			APP_ERROR_COMPASS_ACK = false;
 			//Get compass value
 			double bearing = compass.Bearing();
-			bearing = bearing*360/(2*3.14); //Returns radians by default, convert to degrees
+			//Declare the TextView element so
+			//we can manipulate it in the code
 			
-			if (bearing < 0)
-			{
-				bearing = bearing + 360;
-			}
+			//round
+			int roundedbearing = (int) bearing;
 			
-			//Get the setting value(s) so we know what we need to display.
+			//rotate compass
+			rotateCompass(roundedbearing);
 
 			if(COMPASS_DISPLAY_RADIANS)
 			{
-				bearing = degreesToRadians(bearing);
+				roundedbearing = (int) degreesToRadians(bearing);
 			}
 
 
-			//str = Double.toString(bearing);
-			str = String.format("%.0f", bearing);
+			str = Integer.toString(roundedbearing);
 			if(COMPASS_DISPLAY_RADIANS)
 			{
 				str = str + " mrad";
 			}
 			else
 			{
-				str = str + " deg";
+				str = str + (char) 0x00B0; //00B0 ~ degree symbol
 			}
 		}
 		else
@@ -210,6 +228,7 @@ public class MainActivity extends Activity {
 			str = "INVALID";
 			if(!APP_ERROR_COMPASS_ACK)
 			{
+				//Display a toast pop-up
 				CharSequence text = "There is a problem with the compass hardware. Try moving the device away from any magnetic or metallic objects.";
 				Toast.makeText(MainActivity.this,text,Toast.LENGTH_LONG).show();
 
@@ -218,9 +237,17 @@ public class MainActivity extends Activity {
 		}
 
 		//Update screen element.
+
 		compass_view.setText(str);
-		
+
 		return;	
+	}
+
+	double degreesToRadians(double degrees)
+	{
+		//Convert to radians and multiply by 1000
+		double returnval = (degrees/360) * 2 * 3.14 * 1000;
+		return returnval;
 	}
 	
 	void display_getSettings()
@@ -229,25 +256,18 @@ public class MainActivity extends Activity {
 		//Show radians?
 		SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 		COMPASS_DISPLAY_RADIANS = sharedPref.getBoolean("checkbox_use_radians", false);
-		
+
 		//Compass Update rate
-		APP_COMPASS_UPDATE_RATE_MS = Integer.parseInt(sharedPref.getString("text_compass_pref", "500"));
+		APP_COMPASS_UPDATE_RATE_MS = Integer.parseInt(sharedPref.getString("text_compass_pref", "1"));
 
 		//GPS Min distance
 		gps.MIN_DISTANCE_CHANGE_FOR_UPDATES = Integer.parseInt(sharedPref.getString("text_gps_min_distance", "10"));
-		
+
 		//GPS Min time between updates
 		gps.MIN_TIME_BW_UPDATES = Integer.parseInt(sharedPref.getString("text_gps_update_rate", "30"));
-		
-		return;
-		
-	}
 
-	double degreesToRadians(double degrees)
-	{
-		//Convert to radians and multiply by 1000
-		double returnval = (degrees/360) * 2 * 3.14 * 1000;
-		return returnval;
+		return;
+
 	}
 
 	@Override
@@ -265,5 +285,67 @@ public class MainActivity extends Activity {
 		Intent intent = new Intent(this, SettingsActivity.class);
 		startActivity(intent);		
 	}
+	
+	public void rotateCompass(int bearing) {
+		// get the angle around the z-axis rotated
+        float degree = (float) bearing;
+ 
+        // create a rotation animation (reverse turn degree degrees)
+        RotateAnimation ra = new RotateAnimation(
+                currentDegree, 
+                -degree,
+                Animation.RELATIVE_TO_SELF, 0.5f, 
+                Animation.RELATIVE_TO_SELF,
+                0.5f);
+ 
+        // how long the animation will take place
+        ra.setDuration(10);
+ 
+        // set the animation after the end of the reservation status
+        ra.setFillAfter(true);
+ 
+        // Start the animation
+        image.startAnimation(ra);
+        currentDegree = -degree;
+	}
+	
+	// rounds doubles by however many decimal "places"
+	public static double round(double value, int places) {
+	    if (places < 0) throw new IllegalArgumentException();
+
+	    BigDecimal bd = new BigDecimal(value);
+	    bd = bd.setScale(places, RoundingMode.HALF_UP);
+	    return bd.doubleValue();
+	}
+	
+	public static int minutes(double value) {
+		value = Math.abs(value);
+		int temp = (int) value;
+		int hold = (int) ((value % temp)*100);
+		int Minute = ((hold*60)/100);
+		return Minute;
+	}
+	
+	public static int seconds(double value) {
+		value = Math.abs(value);
+		int temp = (int) value;
+		int hold = (int) ((value % temp)*100);
+		int Minute = ((hold*60) % 100);
+		int Second = (Minute*60)/100;
+		return Second;
+	}
+	
+	 protected void onResume() {
+		    super.onResume();
+		    gps.getLocation();
+		    compass.startUsingCompass();		   
+		  }
+		 
+	 protected void onPause() {
+		    super.onPause();
+		    gps.stopUsingGPS();
+		    compass.stopUsingCompass();	    
+		  }
+	
 
 }
