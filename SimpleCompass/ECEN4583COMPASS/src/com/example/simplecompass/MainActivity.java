@@ -45,6 +45,8 @@ public class MainActivity extends Activity {
 	//Run when the app is opened by the Android OS
 	//for the first time. Sets the view to the
 	//main activity and starts the update loop.
+	//Preconditions: The MainActivity is started for the first time
+	//Postconditions: The app is running.
 	////////////////////////////////////////
 
 	protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +70,8 @@ public class MainActivity extends Activity {
 	//Outputs: Boolean, true
 	//
 	//Inflates the action menu and adds items to it
+	//Preconditions: the app has been started for the first time
+	//Postconditions: The app now displays the Action Menu
 	////////////////////////////////////////
 
 	@Override
@@ -86,6 +90,8 @@ public class MainActivity extends Activity {
 	//Calls the functions that update the
 	//display, then pauses for a short amount of
 	//time before updating again.
+	//Preconditions: The app has just started for the first time
+	//Postconditions: none (runs as long as the app does)
 	////////////////////////////////////
 	void startUpdateLoop()
 	{
@@ -123,12 +129,14 @@ public class MainActivity extends Activity {
 	//Reads in data from the GPS class
 	//and updates the appropriate elements
 	//in the main activity.
+	//Preconditions: The MainActivity has focus
+	//Postconditions: The GPS fields in the UI
+	//are updated with current values.
 	///////////////////////////////
 	void display_GPSUpdate()
 	{
 
-		//Check for errors... eventually.
-
+		//Error checking
 		//Get GPS values
 		if(gps.canGetLocation())
 		{
@@ -150,7 +158,6 @@ public class MainActivity extends Activity {
 		TextView long_view = (TextView) findViewById(R.id.gps_long_value);
 
 		//Update screen elements.
-//		lat_view.setText(Double.toString(latitude));
 		lat_view.setText(Integer.toString(rlatitude) + (char) 0x00B0 + Integer.toString(latminute) + "'" + Integer.toString(latsecond) + "''");
 		long_view.setText(Integer.toString(rlongitude) + (char) 0x00B0 + Integer.toString(longminute) + "'" + Integer.toString(longsecond) + "''");
 		}
@@ -181,9 +188,14 @@ public class MainActivity extends Activity {
 	//Inputs: none
 	//Outputs: none
 	//
-	//Reads in data from the GPS class
+	//Reads in data from the compass class
 	//and updates the appropriate elements
 	//in the main activity.
+	//
+	//Preconditions: The MainActivity has focus.
+	//Postconditions: The bearing field in the UI is
+	//updated with the current value and
+	//the compass graphic spins to match.
 	///////////////////////////////
 	void display_CompassUpdate()
 	{
@@ -242,7 +254,18 @@ public class MainActivity extends Activity {
 
 		return;	
 	}
-
+	////////////////////////
+	//degreesToRadians
+	//
+	//Input: degrees (double)
+	//Output: radians (double)
+	//Preconditions: COMPASS_DISPLAY_RADIANS
+	//must be TRUE (user has chosen to display milliradians
+	//instead of degrees)
+	//
+	//Postconditions: The main activity will
+	//display the output in milliradians instead of degrees.
+	//////////////////////////
 	double degreesToRadians(double degrees)
 	{
 		//Convert to radians and multiply by 1000
@@ -250,6 +273,15 @@ public class MainActivity extends Activity {
 		return returnval;
 	}
 	
+	////////////////////////////
+	//display_getSettings()
+	//
+	//Preconditions: The GPS and Compass fields
+	//have been updated with current values.
+	//
+	//Postconditions: User-chosen settings will
+	//be applied the next time the app updates.
+	//////////////////////////////
 	void display_getSettings()
 	{
 		//Get recent preferences
@@ -270,6 +302,17 @@ public class MainActivity extends Activity {
 
 	}
 
+	///////////////////////////
+	//onOptionsItemSelected
+	//Input: MenuItem item
+	//Output: bool (true)
+	//
+	//Android-provided function that handles
+	//Action Menu selections.
+	//
+	//Preconditions: App is currently displaying the MainActivity.
+	//Postconditions: MainActivity is paused and the SettingsActivity is run.
+	////////////////////////////
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item)
 	{	    		
@@ -280,12 +323,33 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
+	///////////////////////
+	//openSettings()
+	//
+	//Starts the SettingsActivity
+	//
+	//Preconditions: App is on MainActivity and user has selected
+	//"Settings" in the Action Menu
+	//Postconditions: MainActivity is paused and SettingsActivity is run.
+	///////////////////////
 	public void openSettings()
 	{
 		Intent intent = new Intent(this, SettingsActivity.class);
 		startActivity(intent);		
 	}
 	
+	//////////////////////////
+	//rotateCompass()
+	//Inputs: int bearing
+	//
+	//Rotates the compass graphic to match the
+	//given bearing
+	//
+	//Preconditions: App can get valid bearing value, MainActivity is
+	//current activity.
+	//Postconditions: Compass graphic moves to match the given
+	//bearing.
+	/////////////////////////
 	public void rotateCompass(int bearing) {
 		// get the angle around the z-axis rotated
         float degree = (float) bearing;
@@ -309,7 +373,16 @@ public class MainActivity extends Activity {
         currentDegree = -degree;
 	}
 	
-	// rounds doubles by however many decimal "places"
+	//////////////////////
+	//round()
+	// rounds doubles to given number of decimal places
+	//
+	//Inputs: double value, int places
+	//Outputs: value (rounded to places decimal points)
+	//
+	//Preconditions: None
+	//Postconditions: None
+	//////////////////////
 	public static double round(double value, int places) {
 	    if (places < 0) throw new IllegalArgumentException();
 
@@ -318,6 +391,15 @@ public class MainActivity extends Activity {
 	    return bd.doubleValue();
 	}
 	
+	////////////////////
+	//minutes()
+	//Inputs: double value
+	//Outputs: int minutes
+	//Takes a decimal latitude/longitude value
+	//and calculates the minutes from it.
+	//Preconditions: none
+	//Postconditions: none
+	////////////////////
 	public static int minutes(double value) {
 		value = Math.abs(value);
 		int temp = (int) value;
@@ -326,6 +408,15 @@ public class MainActivity extends Activity {
 		return Minute;
 	}
 	
+	////////////////////
+	//seconds()
+	//Inputs: double value
+	//Outputs: int seconds
+	//Takes a decimal latitude/longitude value
+	//and calculates the seconds from it.
+	//Preconditions: none
+	//Postconditions: none
+	////////////////////
 	public static int seconds(double value) {
 		value = Math.abs(value);
 		int temp = (int) value;
@@ -335,12 +426,35 @@ public class MainActivity extends Activity {
 		return Second;
 	}
 	
+	///////////////////
+	//onResume()
+	//Android-provided function called
+	//when the MainActivity activity is
+	//resumed from pause.
+	//
+	//Preconditions: The MainActivity activity
+	//has been paused by the Android OS
+	//PostConditions: The MainActivity activity
+	//is unpaused and GPS/Compass updates resume.
+	///////////////////
 	 protected void onResume() {
 		    super.onResume();
 		    gps.getLocation();
 		    compass.startUsingCompass();		   
 		  }
 		 
+	 ///////////////////
+	 //onPause()
+	 //Android-provided function called
+	 //when the MainActivity activity does
+	 //not have focus, i.e. when the Settings menu
+	 //is activated or the user runs another app.
+	 //
+	 //Preconditions: The MainActivity is the currently running
+	 //activity.
+	 //PostConditions: The MainActivity activity
+	 //is paused and GPS/Compass updates are stopped.
+	 ///////////////////
 	 protected void onPause() {
 		    super.onPause();
 		    gps.stopUsingGPS();
